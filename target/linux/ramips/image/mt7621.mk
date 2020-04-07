@@ -795,7 +795,7 @@ define Device/ubiquiti_edgerouterx-sfp
   $(Device/ubiquiti_edgerouterx)
   DEVICE_VENDOR := Ubiquiti
   DEVICE_MODEL := EdgeRouter X-SFP
-  DEVICE_PACKAGES += kmod-i2c-algo-pca kmod-gpio-pca953x
+  DEVICE_PACKAGES += kmod-i2c-algo-pca kmod-gpio-pca953x kmod-at803x
   SUPPORTED_DEVICES += ubnt-erx-sfp
 endef
 TARGET_DEVICES += ubiquiti_edgerouterx-sfp

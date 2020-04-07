@@ -64,6 +64,26 @@ endef
 
 $(eval $(call KernelPackage,bluetooth))
 
+define KernelPackage/at803x
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=PHY at803x Kernel Module support
+  DEPENDS:=+kmod-i2c-core
+  KCONFIG:= \
+	CONFIG_SFP=m \
+	CONFIG_MDIO_I2C=m
+  FILES:= \
+	$(LINUX_DIR)/drivers/net/phy/at803x.ko \
+	$(LINUX_DIR)/drivers/net/phy/sfp.ko \
+	$(LINUX_DIR)/drivers/net/phy/mdio-i2c.ko
+  AUTOLOAD:=$(call AutoProbe,sfp mdio-i2c)
+endef
+
+define KernelPackage/at803x/description
+ Kernel support for PHY AT8031, AT8033 Module
+endef
+
+$(eval $(call KernelPackage,at803x))
+
 define KernelPackage/ath3k
   SUBMENU:=$(OTHER_MENU)
   TITLE:=ATH3K Kernel Module support
