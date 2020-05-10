@@ -1,0 +1,233 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/dts-v1/;
+
+/include/ "fsl/p1020si-pre.dtsi"
+/ {
+	model = "Ruckus ZoneFlex 7982";
+	compatible = "ruckus,zoneflex-7982";
+
+        aliases {
+                led-boot = &system_yellow;
+                led-failsafe = &system_yellow;
+                led-running = &system_yellow;
+                led-upgrade = &system_yellow;
+        };
+
+        chosen {
+                /* Needed for initramfs */
+                bootargs-override = "console=ttyS0,115200n8";
+        };
+
+	memory {
+		device_type = "memory";
+	};
+
+        lbc: localbus@ffe05000 {
+                reg = <0 0xffe05000 0 0x1000>;
+                ranges = <0x0 0x0 0x0 0xec000000 0x04000000
+                          0x1 0x0 0x0 0xff800000 0x00040000
+                          0x2 0x0 0x0 0xffa00000 0x00020000
+                          0x3 0x0 0x0 0xffb00000 0x00020000>;
+
+/*
+                ranges = <0x0 0x0 0x0 0xef000000 0x01000000
+                          0x1 0x0 0x0 0xff800000 0x00040000>;
+*/
+ 
+		nor@1,0 {
+			compatible = "jedec,spi-nor";
+			reg = <0x0 0x0 0x2000000>;
+			bank-width = <2>;
+                        device-width = <1>;
+
+			partitions {
+				#address-cells = <1>;
+				#size-cells = <1>;
+				compatible = "ecoscentric,redboot-fis-partitions";
+
+				/* 
+				 * Original patition layout:
+				 * 0x000000000000-0x000000080000 : "u-boot"
+				 * 0x000000080000-0x0000001c0000 : "rcks_wlan.main"
+				 * 0x0000001c0000-0x000000d80000 : "v54_$rootfs$_1"
+				 * 0x000000d80000-0x000000fe0000 : "datafs"
+				 * 0x000000fe0000-0x000000ff0000 : "u-boot-env"
+				 * 0x000000ff0000-0x000001000000 : "Board Data"
+				 * 0x000001000000-0x000001d00000 : "rcks_wlan.bkup"
+				 * 0x000001d00000-0x000002000000 : "datafs2"
+				 */
+
+/*
+				partition@0 {
+					reg = <0x0 0x80000>;
+					label = "u-boot";
+					read-only;
+				};
+
+				oem-partition@80000 {
+					reg = <0x8000 0x140000>;
+					label = "rcks_wlan.main";
+				};
+
+				oem-partition@1c0000 {
+					reg = <0x1c0000 0xbc0000>;
+					label = "v54_$rootfs$_1";
+				};
+
+				oem-partition@d80000 {
+					reg = <0xd80000 0x260000>;
+					label = "datafs";
+				};
+
+				partition@fe0000 {
+					reg = <0xfe0000 0x10000>;
+					label = "u-boot env";
+				};
+
+				oem-partition@ff0000 {
+					reg = <0xff0000 0x1000>;
+					label = "Board Data";
+				};
+
+				oem-partition@1000000 {
+					reg = <0x1000000 0xd00000>;
+					label = "rcks_wlan.bkup";
+				};
+
+				oem-partition@1d00000 {
+					reg = <0x1d00000 0x300000>;
+					label = "datafs2";
+				};
+*/
+			};
+		};
+       };
+
+       soc: soc@ffe00000 {
+                ranges = <0x0 0x0 0xffe00000 0x100000>;
+
+/*
+                spi@7000 {
+	                flash@0 {
+	                        #address-cells = <1>;
+	                        #size-cells = <1>;
+	                        compatible = "spansion,m25p80", "jedec,spi-nor";
+	                        reg = <0>;
+	                        spi-max-frequency = <40000000>;
+				};
+			};
+*/
+
+	        i2c@3000 {
+	                rtc@68 {
+	                        compatible = "dallas,ds1339";
+	                        reg = <0x68>;
+	                };
+	        };
+	
+                gpio0: gpio-controller@fc00 {
+                };
+
+	
+	        mdio@24000 {
+	                phy0: ethernet-phy@0 {
+	                        reg = <0x0>;
+	                };
+	                phy1: ethernet-phy@1 {
+	                        reg = <0x1>;
+	                };
+	        };
+	
+	        mdio@25000 {
+	                tbi_phy0: tbi-phy@11 {
+	                        reg = <0x11>;
+	                };
+	        };
+	
+        	mdio@26000 {
+	                tbi_phy1: tbi-phy@11 {
+	                        reg = <0x11>;
+	                };
+	        };
+
+	        enet0: ethernet@b0000 {
+	                phy-handle = <&phy0>;
+                        tbi-handle = <&tbi_phy0>;
+	                phy-connection-type = "sgmii";
+	        };
+	
+	        enet1: ethernet@b1000 {
+	                phy-handle = <&phy1>;
+	                tbi-handle = <&tbi_phy1>;
+	                phy-connection-type = "sgmii";
+	        };
+	
+                usb@22000 {
+                        phy_type = "ulpi";
+                        dr_mode = "host";
+                };
+
+                usb@23000 {
+                        status = "disabled";
+                };
+	};
+
+/*
+        ifc: ifc@ffe1e000 {
+                reg = <0x0 0xffe1e000 0 0x2000>;
+        };
+*/
+
+        pci0: pcie@ffe09000 {
+                ranges = <0x2000000 0x0 0xa0000000 0 0xa0000000 0x0 0x20000000
+                          0x1000000 0x0 0x00000000 0 0xffc10000 0x0 0x10000>;
+                reg = <0 0xffe09000 0 0x1000>;
+                pcie@0 {
+                        ranges = <0x2000000 0x0 0xa0000000
+                                  0x2000000 0x0 0xa0000000
+                                  0x0 0x20000000
+
+                                  0x1000000 0x0 0x0
+                                  0x1000000 0x0 0x0
+                                  0x0 0x100000>;
+                };
+        };
+
+        pci1: pcie@ffe0a000 {
+                reg = <0 0xffe0a000 0 0x1000>;
+                ranges = <0x2000000 0x0 0x80000000 0 0x80000000 0x0 0x20000000
+                          0x1000000 0x0 0x00000000 0 0xffc00000 0x0 0x10000>;
+                pcie@0 {
+                        ranges = <0x2000000 0x0 0x80000000
+                                  0x2000000 0x0 0x80000000
+                                  0x0 0x20000000
+
+                                  0x1000000 0x0 0x0
+                                  0x1000000 0x0 0x0
+                                  0x0 0x100000>;
+                };
+        };
+
+
+	leds {
+		compatible = "gpio-leds";
+
+		system_yellow: system {
+			label = "zoneflex-7982:yellow:system";
+			gpios = <&gpio0 486 1>;
+		};
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+
+		reset {
+			label = "Reset Button";
+			linux,code = <0x198>;
+			gpios = <&gpio0 490 0>;
+		};
+	};
+
+};
+
+/include/ "fsl/p1020si-post.dtsi"

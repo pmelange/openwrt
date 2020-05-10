@@ -103,6 +103,24 @@ define Device/ocedo_panda
 endef
 TARGET_DEVICES += ocedo_panda
 
+define Device/ruckus_zoneflex-7982
+  DEVICE_VENDOR := Ruckus
+  DEVICE_MODEL := ZoneFlex
+  DEVICE_VARIANT := 7982
+  DEVICE_PACKAGES := kmod-rtc-ds1307 uboot-envtools
+  #DTS_DIR := $(DTS_DIR)/fsl
+  # Original firmware uses a dedicated DTB-partition.
+  # The bootloader however supports FIT-images.
+  KERNEL = kernel-bin | gzip | fit gzip $(KDIR)/image-$$(DEVICE_DTS).dtb
+  PAGESIZE := 2048
+  SUBPAGESIZE := 512
+  BLOCKSIZE := 128k
+  IMAGES := fdt.bin sysupgrade.bin
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+  IMAGE/fdt.bin := append-dtb
+endef
+TARGET_DEVICES += ruckus_zoneflex-7982
+
 endif
 
 ifeq ($(SUBTARGET),p2020)
