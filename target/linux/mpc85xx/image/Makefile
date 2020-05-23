@@ -108,7 +108,6 @@ define Device/ruckus_zoneflex-7982
   DEVICE_MODEL := ZoneFlex
   DEVICE_VARIANT := 7982
   DEVICE_PACKAGES := kmod-rtc-ds1307 uboot-envtools
-  #DTS_DIR := $(DTS_DIR)/fsl
   # Original firmware uses a dedicated DTB-partition.
   # The bootloader however supports FIT-images.
   KERNEL = kernel-bin | gzip | fit gzip $(KDIR)/image-$$(DEVICE_DTS).dtb

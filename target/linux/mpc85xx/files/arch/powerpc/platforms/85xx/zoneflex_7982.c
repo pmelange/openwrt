@@ -29,7 +29,6 @@
 #include <asm/prom.h>
 #include <asm/udbg.h>
 #include <asm/mpic.h>
-#include "smp.h"
 
 #include <sysdev/fsl_soc.h>
 #include <sysdev/fsl_pci.h>
@@ -56,8 +55,6 @@ static void __init ruckus_zoneflex_7982_setup_arch(void)
 	if (ppc_md.progress)
 		ppc_md.progress("ruckus_zoneflex_7982_setup_arch()", 0);
 
-        mpc85xx_smp_init();
-
 	fsl_pci_assign_primary();
 
 	pr_info("ZoneFlex 7982 from Rufus\n");
@@ -76,7 +73,7 @@ static int __init ruckus_zoneflex_7982_probe(void)
 }
 
 define_machine(ruckus_zoneflex_7982) {
-	.name			= "P1020 RDB",
+	.name			= "P1024 RDB",
 	.probe			= ruckus_zoneflex_7982_probe,
 	.setup_arch		= ruckus_zoneflex_7982_setup_arch,
 	.init_IRQ		= ruckus_zoneflex_7982_pic_init,

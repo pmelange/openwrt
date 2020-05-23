@@ -24,9 +24,9 @@ tplink,tl-wdr4900-v1)
 	ucidef_set_interface_macaddr "wan" "$(macaddr_add $(mtd_get_mac_binary u-boot 0x4fc00) 1)"
 	;;
 ruckus,zoneflex-7982)
-	wan_mac=$(fconfig -s -r -d $(find_mtd_part "RedBoot config") -n alias/ethaddr)
-	lan_mac=$(macaddr_add "$wan_mac" 1)
-	ucidef_set_interfaces_lan_wan "eth0" "eth1"
+#	wan_mac=$(fconfig -s -r -d $(find_mtd_part "RedBoot config") -n alias/ethaddr)
+#	lan_mac=$(macaddr_add "$wan_mac" 1)
+	ucidef_set_interfaces_lan_wan "eth1" "eth0"
 	;;
 *)
 	ucidef_set_interfaces_lan_wan "eth0" "eth1"
