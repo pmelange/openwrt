@@ -124,35 +124,15 @@
 			espi,num-ss-bits = <0x4>;
 			mode = "cpu";
 
-			fsl_m25p80@0 {
-				#address-cells = <0x1>;
-				#size-cells = <0x1>;
-				compatible = "fsl,espi-flash";
-				reg = <0x0>;
-				linux,modalias = "fsl_m25p80";
-				spi-max-frequency = <0x2625a00>;
-			};
+			flash@0 {
+				/* test with 40 mhz */
+				compatible = "jedec,spi-nor";
+				reg = <0>;
+				spi-max-frequency = <25000000>;
 
-			legerity@0 {
-				compatible = "fsl,espi-slic";
-				reg = <0x1>;
-				linux,modalias = "legerity";
-				spi-max-frequency = <0x7a1200>;
-				ch1-rx-slot = <0x0>;
-				ch1-tx-slot = <0x0>;
-				ch2-rx-slot = <0x2>;
-				ch2-tx-slot = <0x2>;
-			};
-
-			legerity@1 {
-				compatible = "fsl,espi-slic";
-				reg = <0x2>;
-				linux,modalias = "legerity";
-				spi-max-frequency = <0x7a1200>;
-				ch1-rx-slot = <0x4>;
-				ch1-tx-slot = <0x4>;
-				ch2-rx-slot = <0x6>;
-				ch2-tx-slot = <0x6>;
+				partitions {
+					compatible = "ecoscentric,redboot-fis-partitions";
+				};
 			};
 		};
 
@@ -187,71 +167,16 @@
 			linux,phandle = <0x1>;
 		};
 
-		dma@21300 {
-			#address-cells = <0x1>;
-			#size-cells = <0x1>;
-			compatible = "fsl,eloplus-dma";
-			reg = <0x21300 0x4>;
-			ranges = <0x0 0x21100 0x200>;
-			cell-index = <0x0>;
-
-			dma-channel@0 {
-				compatible = "fsl,eloplus-dma-channel";
-				reg = <0x0 0x80>;
-				cell-index = <0x0>;
-				interrupt-parent = <0x2>;
-				interrupts = <0x14 0x2>;
-			};
-
-			dma-channel@80 {
-				compatible = "fsl,eloplus-dma-channel";
-				reg = <0x80 0x80>;
-				cell-index = <0x1>;
-				interrupt-parent = <0x2>;
-				interrupts = <0x15 0x2>;
-			};
-
-			dma-channel@100 {
-				compatible = "fsl,eloplus-dma-channel";
-				reg = <0x100 0x80>;
-				cell-index = <0x2>;
-				interrupt-parent = <0x2>;
-				interrupts = <0x16 0x2>;
-			};
-
-			dma-channel@180 {
-				compatible = "fsl,eloplus-dma-channel";
-				reg = <0x180 0x80>;
-				cell-index = <0x3>;
-				interrupt-parent = <0x2>;
-				interrupts = <0x17 0x2>;
-			};
-		};
-
 		mdio@24000 {
-			#address-cells = <0x1>;
-			#size-cells = <0x0>;
-			compatible = "fsl,etsec2-mdio";
-			reg = <0x24000 0x1000 0xb0030 0x4>;
-
-			ethernet-phy@0 {
-				interrupt-parent = <0x2>;
-				interrupts = <0x3 0x1>;
+			phy0: ethernet-phy@6 {
+				interrupts = <3 1 0 0>;
 				reg = <0x6>;
-				linux,phandle = <0x3>;
 			};
 
-			ethernet-phy@1 {
-				interrupt-parent = <0x2>;
-				interrupts = <0x2 0x1>;
-				reg = <0x2>;
-			};
-
-			ethernet-phy@2 {
-				interrupt-parent = <0x2>;
-				interrupts = <0x1 0x1>;
+			phy1: ethernet-phy@5 {
+				/* todo check interupts. oem use cells: */
+				interrupts = <1 1 0 0>;
 				reg = <0x5>;
-				linux,phandle = <0x6>;
 			};
 		};
 
@@ -449,10 +374,20 @@
 			interrupt-parent = <0x2>;
 		};
 
-		global-utilities@e0000 {
-			compatible = "fsl,p1020-guts", "fsl,p2020-guts";
-			reg = <0xe0000 0x1000>;
-			fsl,has-rstcr;
+		enet0: ethernet@b0000 {
+			status = "okay";
+			phy-handle = <&phy0>;
+			phy-connection-type = "rgmii-id";
+		};
+
+		enet1: ethernet@b1000 {
+			status = "disabled";
+		};
+
+		enet2: ethernet@b2000 {
+			status = "okay";
+			phy-handle = <&phy1>;
+			phy-connection-type = "rgmii-id";
 		};
 	};
 
