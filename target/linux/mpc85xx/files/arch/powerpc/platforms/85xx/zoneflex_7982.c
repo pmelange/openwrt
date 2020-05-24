@@ -73,7 +73,7 @@ static int __init ruckus_zoneflex_7982_probe(void)
 }
 
 define_machine(ruckus_zoneflex_7982) {
-	.name			= "P1024 RDB",
+	.name			= "Ruckus Zoneflex 7982",
 	.probe			= ruckus_zoneflex_7982_probe,
 	.setup_arch		= ruckus_zoneflex_7982_setup_arch,
 	.init_IRQ		= ruckus_zoneflex_7982_pic_init,
