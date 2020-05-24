@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
 /dts-v1/;
 
-/memreserve/	0x0000000007f00000 0x0000000000100000;
-/memreserve/	0x0000000000ff6000 0x0000000000007000;
+/include/ "fsl/p1020si-pre.dtsi"
+
 / {
 	model = "Ruckus ZoneFlex 7982";
 	compatible = "ruckus,zoneflex-7982";
@@ -14,32 +15,10 @@
 	};
 
 	aliases {
-		serial0 = "/soc@ffe00000/serial@4500";
-		serial1 = "/soc@ffe00000/serial@4600";
-		ethernet0 = "/soc@ffe00000/ethernet@b0000";
-		ethernet1 = "/soc@ffe00000/ethernet@b2000";
-		pci0 = "/pcie@ffe09000";
-		pci1 = "/pcie@ffe0a000";
-	};
-
-	cpus {
-		#address-cells = <0x1>;
-		#size-cells = <0x0>;
-
-		PowerPC,P1024@0 {
-			i-cache-sets = <0x80>;
-			i-cache-size = <0x8000>;
-			i-cache-block-size = <0x20>;
-			d-cache-sets = <0x80>;
-			d-cache-size = <0x8000>;
-			d-cache-block-size = <0x20>;
-			clock-frequency = <0x27bc86a4>;
-			bus-frequency = <0x13de4352>;
-			timebase-frequency = <0x27bc86a>;
-			device_type = "cpu";
-			reg = <0x0>;
-			next-level-cache = <0x1>;
-		};
+		led-boot = &system_yellow;
+		led-failsafe = &system_yellow;
+		led-running = &system_yellow;
+		led-upgrade = &system_yellow;
 	};
 
 	memory {
@@ -48,65 +27,6 @@
 
 	soc: soc@ffe00000 {
 		ranges = <0x0 0x0 0xffe00000 0x100000>;
-		bus-frequency = <0x13de4352>;
-
-		ecm-law@0 {
-			compatible = "fsl,ecm-law";
-			reg = <0x0 0x1000>;
-			fsl,num-laws = <0xc>;
-		};
-
-		ecm@1000 {
-			compatible = "fsl,p1020-ecm", "fsl,ecm";
-			reg = <0x1000 0x1000>;
-			interrupts = <0x10 0x2>;
-			interrupt-parent = <0x2>;
-		};
-
-		memory-controller@2000 {
-			compatible = "fsl,p1020-memory-controller";
-			reg = <0x2000 0x1000>;
-			interrupt-parent = <0x2>;
-			interrupts = <0x10 0x2>;
-		};
-
-		i2c@3000 {
-			#address-cells = <0x1>;
-			#size-cells = <0x0>;
-			compatible = "fsl-i2c";
-			reg = <0x3000 0x100>;
-			interrupts = <0x2b 0x2>;
-			interrupt-parent = <0x2>;
-			dfsrr;
-		};
-
-		i2c@3100 {
-			#address-cells = <0x1>;
-			#size-cells = <0x0>;
-			compatible = "fsl-i2c";
-			reg = <0x3100 0x100>;
-			interrupts = <0x2b 0x2>;
-			interrupt-parent = <0x2>;
-			dfsrr;
-		};
-
-		serial@4500 {
-			device_type = "serial";
-			compatible = "ns16550";
-			reg = <0x4500 0x100>;
-			clock-frequency = <0x13de4352>;
-			interrupts = <0x2a 0x2>;
-			interrupt-parent = <0x2>;
-		};
-
-		serial@4600 {
-			device_type = "serial";
-			compatible = "ns16550";
-			reg = <0x4600 0x100>;
-			clock-frequency = <0x13de4352>;
-			interrupts = <0x2a 0x2>;
-			interrupt-parent = <0x2>;
-		};
 
 		spi@7000 {
 			flash@0 {
@@ -116,18 +36,50 @@
 				spi-max-frequency = <25000000>;
 
 				partitions {
-					compatible = "ecoscentric,redboot-fis-partitions";
+					compatible = "fixed-partitions";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					partition@0 {
+						reg = <0x0 0x80000>;
+						label = "u-boot";
+						read-only;
+					};
+
+					oem-partition@80000 {
+						reg = <0x8000 0x140000>;
+						label = "rcks_wlan.main";
+					};
+
+					oem-partition@1c0000 {
+						reg = <0x1c0000 0xbc0000>;
+						label = "v54_$rootfs$_1";
+					};
+
+					oem-partition@d80000 {
+						reg = <0xd80000 0x260000>;
+						label = "datafs";
+					};
+
+					partition@fe0000 {
+						reg = <0xfe0000 0x10000>;
+						label = "u-boot env";
+					};
+
+					oem-partition@ff0000 {
+						reg = <0xff0000 0x1000>;
+						label = "Board Data";
+					};
+
+					partition@1000000 {
+						reg = <0x1000000 0x1000000>;
+						label = "firmware";
+				       };
 				};
 			};
 		};
 
-		gpio-controller@f000 {
-			#gpio-cells = <0x2>;
-			compatible = "fsl,mpc8572-gpio";
-			reg = <0xf000 0x100>;
-			interrupts = <0x2f 0x2>;
-			interrupt-parent = <0x2>;
-			gpio-controller;
+		gpio0: gpio-controller@fc00 {
 		};
 
 		tdm@16000 {
@@ -208,124 +160,6 @@
 			linux,phandle = <0x4>;
 		};
 
-		ethernet@b0000 {
-			rx-stash-idx = <0x0>;
-			rx-stash-len = <0x60>;
-			bd-stash;
-			#address-cells = <0x1>;
-			#size-cells = <0x1>;
-			device_type = "network";
-			model = "eTSEC";
-			compatible = "fsl,etsec2";
-			fsl,num_rx_queues = <0x8>;
-			fsl,num_tx_queues = <0x8>;
-			local-mac-address = [00 19 77 08 10 00];
-			interrupt-parent = <0x2>;
-			fixed-link = <0x1 0x1 0x3e8 0x0 0x0>;
-			phy-handle = <0x3>;
-			phy-connection-type = "rgmii-id";
-			ptimer-handle = <0x4>;
-			fsl,magic-packet;
-			clk-handle = <0x5>;
-
-			queue-group@0 {
-				#address-cells = <0x1>;
-				#size-cells = <0x1>;
-				reg = <0xb0000 0x1000>;
-				interrupts = <0x1d 0x2 0x1e 0x2 0x22 0x2>;
-			};
-
-			queue-group@1 {
-				#address-cells = <0x1>;
-				#size-cells = <0x1>;
-				reg = <0xb4000 0x1000>;
-				interrupts = <0x11 0x2 0x12 0x2 0x18 0x2>;
-			};
-		};
-
-		ethernet@b2000 {
-			rx-stash-idx = <0x0>;
-			rx-stash-len = <0x60>;
-			bd-stash;
-			#address-cells = <0x1>;
-			#size-cells = <0x1>;
-			device_type = "network";
-			model = "eTSEC";
-			compatible = "fsl,etsec2";
-			fsl,num_rx_queues = <0x8>;
-			fsl,num_tx_queues = <0x8>;
-			local-mac-address = [00 19 77 08 10 01];
-			interrupt-parent = <0x2>;
-			phy-handle = <0x6>;
-			phy-connection-type = "rgmii-id";
-			ptimer-handle = <0x4>;
-			fsl,magic-packet;
-			clk-handle = <0x7>;
-
-			queue-group@0 {
-				#address-cells = <0x1>;
-				#size-cells = <0x1>;
-				reg = <0xb2000 0x1000>;
-				interrupts = <0x1f 0x2 0x20 0x2 0x21 0x2>;
-			};
-
-			queue-group@1 {
-				#address-cells = <0x1>;
-				#size-cells = <0x1>;
-				reg = <0xb6000 0x1000>;
-				interrupts = <0x19 0x2 0x1a 0x2 0x1b 0x2>;
-			};
-		};
-
-		usb@22000 {
-			#address-cells = <0x1>;
-			#size-cells = <0x0>;
-			compatible = "fsl-usb2-dr";
-			reg = <0x22000 0x1000>;
-			interrupt-parent = <0x2>;
-			interrupts = <0x1c 0x2>;
-			phy_type = "ulpi";
-		};
-
-		sdhci@2e000 {
-			status = "okay";
-			compatible = "fsl,p1020-esdhc", "fsl,esdhc";
-			reg = <0x2e000 0x1000>;
-			interrupts = <0x48 0x2>;
-			interrupt-parent = <0x2>;
-			clock-frequency = <0x9ef21a9>;
-		};
-
-		crypto@30000 {
-			compatible = "fsl,sec3.3", "fsl,sec3.1", "fsl,sec3.0", "fsl,sec2.4", "fsl,sec2.2", "fsl,sec2.1", "fsl,sec2.0";
-			reg = <0x30000 0x10000>;
-			interrupts = <0x2d 0x2 0x3a 0x2>;
-			interrupt-parent = <0x2>;
-			fsl,num-channels = <0x4>;
-			fsl,channel-fifo-len = <0x18>;
-			fsl,exec-units-mask = <0x97c>;
-			fsl,descriptor-types-mask = <0x3a30abf>;
-			fsl,multi-host-mode = "primary";
-			fsl,channel-remap = <0x3>;
-		};
-
-		pic@40000 {
-			interrupt-controller;
-			#address-cells = <0x0>;
-			#interrupt-cells = <0x2>;
-			reg = <0x40000 0x40000>;
-			compatible = "chrp,open-pic";
-			device_type = "open-pic";
-			linux,phandle = <0x2>;
-		};
-
-		message@41400 {
-			compatible = "fsl,p1020-msg", "fsl,mpic-msg";
-			reg = <0x41400 0x200>;
-			interrupts = <0xb0 0x2 0xb1 0x2 0xb2 0x2 0xb3 0x2>;
-			interrupt-parent = <0x2>;
-		};
-
 		message@42400 {
 			compatible = "fsl,p1020-msg", "fsl,mpic-msg";
 			reg = <0x42400 0x200>;
@@ -380,22 +214,17 @@
 		ranges = <0x2000000 0x0 0xa0000000 0x0 0xa0000000 0x0 0x20000000
 			0x1000000 0x0 0x00000000 0x0 0xffc30000 0x0 0x10000>;
 		pcie@0 {
-			reg = <0x0 0x0 0x0 0x0 0x0>;
-			#size-cells = <0x2>;
-			#address-cells = <0x3>;
-			device_type = "pci";
-			ranges = <0x2000000 0x0 0xa0000000 0x2000000 0x0 0xa0000000 0x0 0x20000000 0x1000000 0x0 0x0 0x1000000 0x0 0x0 0x0 0x100000>;
+			ranges = <0x2000000 0x0 0xa0000000
+				  0x2000000 0x0 0xa0000000
+				  0x0 0x20000000
+
+				  0x1000000 0x0 0x0
+				  0x1000000 0x0 0x0
+				  0x0 0x100000>;
 		};
 	};
 
-	pcie@ffe0a000 {
-		dma-ranges = <0x2000000 0x0 0xfff00000 0x0 0xffe00000 0x0 0x100000 0x42000000 0x0 0x0 0x0 0x0 0x0 0x8000000>;
-		compatible = "fsl,mpc8548-pcie";
-		cell-index = <0x1>;
-		device_type = "pci";
-		#interrupt-cells = <0x1>;
-		#size-cells = <0x2>;
-		#address-cells = <0x3>;
+	pci1: pcie@ffe0a000 {
 		reg = <0x0 0xffe0a000 0x0 0x1000>;
 		ranges = <0x2000000 0x0 0xc0000000 0x0 0xc0000000 0x0 0x20000000
 		      0x1000000 0x0 0x00000000 0x0 0xffc20000 0x0 0x10000>;
@@ -415,3 +244,6 @@
 	};
 
 };
+
+/include/ "fsl/p1020si-post.dtsi"
+
