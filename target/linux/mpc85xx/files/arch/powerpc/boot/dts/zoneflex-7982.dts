@@ -23,6 +23,27 @@
 		device_type = "memory";
 	};
 
+        reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x8000000>;
+			alignment = <0x2000>;
+			linux,cma-default;
+		};
+
+		pci0_reserved: pcie@ffe09000 {
+			reg = <0x7f00000 0x100000>;
+		};
+
+		pci1_reserved: pcie@ffe0a000 {
+			reg = <0xff6000 0x7000>;
+		};
+	};
+
 	soc: soc@ffe00000 {
 		ranges = <0x0 0x0 0xffe00000 0x100000>;
 
