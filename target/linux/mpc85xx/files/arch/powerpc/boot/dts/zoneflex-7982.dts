@@ -1,0 +1,279 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+/include/ "fsl/p1020si-pre.dtsi"
+/ {
+	model = "Ruckus ZoneFlex 7982";
+	compatible = "ruckus,zoneflex-7982";
+	#address-cells = <0x2>;
+	#size-cells = <0x2>;
+
+	chosen {
+		linux,stdout-path = "/soc@ffe00000/serial@4500";
+		bootargs = "console=ttyS0,115200";
+	};
+
+	aliases {
+		led-boot = &system_yellow;
+		led-failsafe = &system_yellow;
+		led-running = &system_yellow;
+		led-upgrade = &system_yellow;
+	};
+
+	memory {
+		device_type = "memory";
+	};
+/*
+        reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+
+		linux,cma {
+			compatible = "shared-dma-pool";
+			reusable;
+			size = <0x8000000>;
+			alignment = <0x2000>;
+			linux,cma-default;
+		};
+
+		pci0_reserved: pcie@ffe09000 {
+			reg = <0x7f00000 0x100000>;
+		};
+
+		pci1_reserved: pcie@ffe0a000 {
+			reg = <0xff6000 0x7000>;
+		};
+	};
+*/
+	soc: soc@ffe00000 {
+		ranges = <0x0 0x0 0xffe00000 0x100000>;
+
+		spi@7000 {
+			flash@0 {
+				/* test with 40 mhz */
+				compatible = "jedec,spi-nor";
+				reg = <0>;
+				spi-max-frequency = <25000000>;
+
+				partitions {
+					compatible = "fixed-partitions";
+					#address-cells = <1>;
+					#size-cells = <1>;
+
+					partition@0 {
+						reg = <0x0 0x80000>;
+						label = "u-boot";
+						read-only;
+					};
+
+					oem-partition@80000 {
+						reg = <0x80000 0x140000>;
+						label = "rcks_wlan.main";
+					};
+
+					oem-partition@1c0000 {
+						reg = <0x1c0000 0xbc0000>;
+						label = "v54_$rootfs$_1";
+					};
+
+					oem-partition@d80000 {
+						reg = <0xd80000 0x260000>;
+						label = "datafs";
+					};
+
+					partition@fe0000 {
+						reg = <0xfe0000 0x10000>;
+						label = "u-boot env";
+					};
+
+					oem-partition@ff0000 {
+						reg = <0xff0000 0x10000>;
+						label = "Board Data";
+					};
+
+					oem-partition@1000000 {
+						reg = <0x1000000 0x140000>;
+						label = "rcks_wlan.bkup";
+				        };
+
+                                        oem-partition@1140000 {
+                                                reg = <0x1140000 0xbc0000>;
+                                                label = "v54_$rootfs$_2";
+                                        };
+
+                                        oem-partition@1d00000 {
+                                                reg = <0x1d00000 0x300000>;
+                                                label = "datafs2";
+                                        };
+
+
+				};
+			};
+		};
+
+		gpio0: gpio-controller@fc00 {
+		};
+
+		tdm@16000 {
+			compatible = "fsl,starlite-tdm";
+			reg = <0x16000 0x200 0x2c000 0x2000>;
+			clock-frequency = <0x0>;
+			interrupts = <0x3f 0x8 0x3e 0x8>;
+			interrupt-parent = <0x2>;
+		};
+
+		l2-cache-controller@20000 {
+			cache-level = <0x2>;
+			cache-sets = <0x400>;
+			cache-block-size = <0x20>;
+			cache-unified;
+			compatible = [66 73 6c 2c 70 31 30 31 31 2d 6c 32 2d 63 61 63 68 65 2d 63 6f 6e 74 72 6f 6c 6c 65 72 00 63 61 63 68 65 00 07 e7];
+			reg = <0x20000 0x1000>;
+			cache-line-size = <0x20>;
+			cache-size = <0x40000>;
+			interrupt-parent = <0x2>;
+			interrupts = <0x10 0x2>;
+			linux,phandle = <0x1>;
+		};
+
+		usb@22000 {
+			status = "disabled";
+		};
+
+		usb@23000 {
+			status = "disabled";
+		};
+
+		mdio@24000 {
+			phy0: ethernet-phy@6 {
+				interrupts = <3 1 0 0>;
+				reg = <0x6>;
+			};
+
+			phy1: ethernet-phy@5 {
+				/* todo check interupts. oem use cells: */
+				interrupts = <1 1 0 0>;
+				reg = <0x5>;
+			};
+		};
+
+		mdio@25000 {
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+			compatible = "fsl,etsec2-tbi";
+			reg = <0x25000 0x1000 0xb1030 0x4>;
+
+			tbi-phy@11 {
+				reg = <0x11>;
+				device_type = "tbi-phy";
+			};
+		};
+
+		mdio@26000 {
+			#address-cells = <0x1>;
+			#size-cells = <0x0>;
+			compatible = "fsl,etsec2-tbi";
+			reg = <0x26000 0x1000 0xb1030 0x4>;
+
+			tbi-phy@11 {
+				reg = <0x11>;
+				device_type = "tbi-phy";
+			};
+		};
+
+		ptimer@b0e00 {
+			timer-frequency = <0x9ef21a9>;
+			compatible = "fsl,gianfar-ptp-timer";
+			reg = <0xb0e00 0xb0>;
+			interrupts = <0x44 0x2 0x45 0x2 0x46 0x2>;
+			interrupt-parent = <0x2>;
+			tmr-prsc = <0x2>;
+			cksel = <0x1>;
+			linux,phandle = <0x4>;
+		};
+
+		message@42400 {
+			compatible = "fsl,p1020-msg", "fsl,mpic-msg";
+			reg = <0x42400 0x200>;
+			interrupts = <0xb4 0x2 0xb5 0x2 0xb6 0x2 0xb7 0x2>;
+			interrupt-parent = <0x2>;
+		};
+
+		enet0: ethernet@b0000 {
+			status = "okay";
+			phy-handle = <&phy0>;
+			phy-connection-type = "rgmii-id";
+		};
+
+		enet1: ethernet@b1000 {
+			status = "disabled";
+		};
+
+		enet2: ethernet@b2000 {
+			status = "okay";
+			phy-handle = <&phy1>;
+			phy-connection-type = "rgmii-id";
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+
+		system_yellow: system {
+			label = "zoneflex-7982:yellow:system";
+			gpios = <&gpio0 486 1>;
+		};
+/*
+		system_red {
+			label = "zoneflex-7982:red:system";
+			gpios = <&gpio0 489 1>;
+		};
+*/
+	};
+
+	buttons {
+		compatible = "gpio-keys";
+
+		reset {
+			label = "Reset Button";
+			linux,code = <0x198>;
+			gpios = <&gpio0 490 1>;
+		};
+	};
+
+	pci0: pcie@ffe09000 {
+		reg = <0x0 0xffe09000 0x0 0x1000>;
+		ranges = <0x2000000 0x0 0xa0000000 0x0 0xa0000000 0x0 0x20000000
+			0x1000000 0x0 0x00000000 0x0 0xffc10000 0x0 0x10000>;
+		pcie@0 {
+			ranges = <0x2000000 0x0 0xa0000000
+				  0x2000000 0x0 0xa0000000
+				  0x0 0x20000000
+
+				  0x1000000 0x0 0x0
+				  0x1000000 0x0 0x0
+				  0x0 0x100000>;
+		};
+	};
+
+	pci1: pcie@ffe0a000 {
+		reg = <0x0 0xffe0a000 0x0 0x1000>;
+		ranges = <0x2000000 0x0 0x80000000 0x0 0x80000000 0x0 0x20000000
+		      0x1000000 0x0 0x00000000 0x0 0xffc00000 0x0 0x10000>;
+		pcie@0 {
+			ranges = <0x2000000 0x0 0x80000000
+			      0x2000000 0x0 0x80000000
+				  0x0 0x20000000
+
+				  0x1000000 0x0 0x0
+				  0x1000000 0x0 0x0
+				  0x0 0x100000>;
+		};
+	};
+
+	board_lbc: lbc: localbus@ffe05000 {
+		status = "disabled";
+	};
+
+};
+
+/include/ "fsl/p1020si-post.dtsi"
