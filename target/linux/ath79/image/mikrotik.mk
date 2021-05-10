@@ -28,6 +28,15 @@ define Device/mikrotik_routerboard-922uags-5hpacd
 endef
 TARGET_DEVICES += mikrotik_routerboard-922uags-5hpacd
 
+define Device/mikrotik_routerboard-960pgs
+  $(Device/mikrotik_nor)
+  SOC := qca9557
+  DEVICE_MODEL := RouterBOARD 960PGS
+  DEVICE_PACKAGES += kmod-usb2 kmod-i2c-gpio kmod-sfp
+  SUPPORTED_DEVICES += rb-960pgs
+endef
+TARGET_DEVICES += mikrotik_routerboard-960pgs
+
 define Device/mikrotik_routerboard-lhg-2nd
   $(Device/mikrotik_nor)
   SOC := qca9533
