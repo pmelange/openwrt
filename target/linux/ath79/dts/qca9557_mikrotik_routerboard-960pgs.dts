@@ -62,7 +62,7 @@
                 tx-disable-gpios = <&gpio 16 GPIO_ACTIVE_HIGH>;
                 // Toggling GPIO16 actually enables/disables the transmitter,
                 // but the SFP driver does not seem to be using it.
-		// GPIO12 is the SFP LED
+		// GPIO2 is the SFP LED
                 };
 
 };
@@ -109,9 +109,9 @@
                                         read-only;
                                 };
 
-                                soft_config {
-                                        label = "soft_config";
-                                };
+				soft_config {
+					label = "soft_config";
+				};
                         };
 
                         partition@20000 {
@@ -130,12 +130,12 @@
 		reg = <0>;
 		phy-mode = "mii";
 
-//		qca,ar8327-initvals = <
-//		    0x04 0x80080080 /* PORT0 PAD MODE CTRL */
-//		    0x0c 0x07600000 /* PORT6 PAD MODE CTRL */
-//		    0x7c 0x0000007e /* PORT0_STATUS */
-//		    0x94 0x0000007e /* PORT6 STATUS */
-//		>;
+		qca,ar8327-initvals = <
+		    0x04 0x80080080 /* PORT0 PAD MODE CTRL */
+/*		    0x0c 0x07600000 /* PORT6 PAD MODE CTRL */
+		    0x7c 0x0000007e /* PORT0_STATUS */
+/*		    0x94 0x0000007e /* PORT6 STATUS */
+		>;
 	};
 };
 
@@ -154,7 +154,7 @@
 
 //	mtd-mac-address = <&art 0x0>;
 	phy-handle = <&phy0>;
-	pll-data = <0x8f000000 0xa0000101 0xa0001313>;
+//	pll-data = <0x56000000 0x00000101 0x00001616>;
 
         gmac-config {
                 device = <&gmac>;

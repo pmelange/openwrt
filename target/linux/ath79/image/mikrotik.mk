@@ -32,7 +32,7 @@ define Device/mikrotik_routerboard-960pgs
   $(Device/mikrotik_nor)
   SOC := qca9557
   DEVICE_MODEL := RouterBOARD 960PGS
-  DEVICE_PACKAGES += kmod-usb2 kmod-i2c-gpio kmod-sfp
+  DEVICE_PACKAGES += -wpad-basic-wolfssl kmod-usb2 kmod-i2c-gpio kmod-sfp
   SUPPORTED_DEVICES += rb-960pgs
 endef
 TARGET_DEVICES += mikrotik_routerboard-960pgs
