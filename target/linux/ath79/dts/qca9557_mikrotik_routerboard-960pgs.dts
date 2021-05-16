@@ -10,10 +10,10 @@
 	model = "Mikrotik Routerboard 960pgs";
 
 	aliases {
-		led-boot = &led_power;
-		led-failsafe = &led_power;
-		led-running = &led_power;
-		led-upgrade = &led_power;
+		led-boot = &led_user;
+		led-failsafe = &led_user;
+		led-running = &led_user;
+		led-upgrade = &led_user;
 	};
 
 	leds {
@@ -21,24 +21,15 @@
 
 		led_power: power {
 			label = "green:power";
-			gpios = <&gpio 19 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio 3 GPIO_ACTIVE_HIGH>;
 			default-state = "on";
 		};
 
-		diag {
-			label = "orange:diag";
-			gpios = <&gpio 20 GPIO_ACTIVE_LOW>;
+		led_user: user {
+			label = "orange:user";
+			gpios = <&gpio 12 GPIO_ACTIVE_LOW>;
 		};
 
-		vpn_orange {
-			label = "orange:vpn";
-			gpios = <&gpio 3 GPIO_ACTIVE_LOW>;
-		};
-
-		vpn_green {
-			label = "green:vpn";
-			gpios = <&gpio 18 GPIO_ACTIVE_LOW>;
-		};
 	};
 
 	keys {
@@ -46,16 +37,8 @@
 
 		reset {
 			label = "reset";
-			gpios = <&gpio 17 GPIO_ACTIVE_LOW>;
+			gpios = <&gpio 20 GPIO_ACTIVE_LOW>;
 			linux,code = <KEY_RESTART>;
-			debounce-interval = <60>;
-		};
-
-		eco {
-			label = "eco";
-			gpios = <&gpio 21 GPIO_ACTIVE_LOW>;
-			linux,code = <BTN_0>;
-			linux,input-type = <EV_SW>;
 			debounce-interval = <60>;
 		};
 	};
@@ -79,6 +62,7 @@
                 tx-disable-gpios = <&gpio 16 GPIO_ACTIVE_HIGH>;
                 // Toggling GPIO16 actually enables/disables the transmitter,
                 // but the SFP driver does not seem to be using it.
+		// GPIO12 is the SFP LED
                 };
 
 };
@@ -89,7 +73,7 @@
         flash@0 {
                 compatible = "jedec,spi-nor";
                 reg = <0>;
-                spi-max-frequency = <25000000>;
+                spi-max-frequency = <20000000>;
 
                 partitions {
                         compatible = "fixed-partitions";
@@ -144,13 +128,14 @@
 
 	phy0: ethernet-phy@0 {
 		reg = <0>;
+		phy-mode = "mii";
 
-		qca,ar8327-initvals = <
-		    0x04 0x80080080 /* PORT0 PAD MODE CTRL */
-		    0x0c 0x07600000 /* PORT6 PAD MODE CTRL */
-		    0x7c 0x0000007e /* PORT0_STATUS */
-		    0x94 0x0000007e /* PORT6 STATUS */
-		>;
+//		qca,ar8327-initvals = <
+//		    0x04 0x80080080 /* PORT0 PAD MODE CTRL */
+//		    0x0c 0x07600000 /* PORT6 PAD MODE CTRL */
+//		    0x7c 0x0000007e /* PORT0_STATUS */
+//		    0x94 0x0000007e /* PORT6 STATUS */
+//		>;
 	};
 };
 
@@ -169,7 +154,12 @@
 
 //	mtd-mac-address = <&art 0x0>;
 	phy-handle = <&phy0>;
-	pll-data = <0x56000000 0x00000101 0x00001616>;
+	pll-data = <0x8f000000 0xa0000101 0xa0001313>;
+
+        gmac-config {
+                device = <&gmac>;
+                rgmii-enabled = <1>;
+        };
 };
 
 &eth1 {
